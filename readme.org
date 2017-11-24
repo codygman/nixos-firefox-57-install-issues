@@ -1,0 +1,72 @@
+* try to install firefox 57 again           
+** download nixpkgs-mozilla overlay
+   #+BEGIN_SRC sh :dir ~
+   git clone https://github.com/mozilla/nixpkgs-mozilla
+   #+END_SRC
+
+   #+RESULTS:
+
+   #+BEGIN_SRC sh :dir ~/nixpkgs-mozilla
+   git pull
+   #+END_SRC
+
+   #+RESULTS:
+   : Already up-to-date.
+    
+** get a working firefox using nix-shell command and running firefox in that shell
+   #+BEGIN_SRC sh :dir ~/nixpkgs-mozilla
+    ls 
+   #+END_SRC
+
+   #+RESULTS:
+   | compilers-overlay.nix   |
+   | default.nix             |
+   | deploy_rsa.enc          |
+   | firefox.key             |
+   | firefox-overlay.nix     |
+   | lib                     |
+   | lib-overlay.nix         |
+   | LICENSE                 |
+   | pinned.nix              |
+   | pkgs                    |
+   | README.rst              |
+   | release.nix             |
+   | rust-overlay-install.sh |
+   | rust-overlay.nix        |
+   | servo-overlay.nix       |
+   | update.nix              |
+   | vidyo-overlay.nix       |
+
+   #+BEGIN_SRC sh :dir ~/nixpkgs-mozilla
+    nix-shell -E "(import <nixpkgs> {overlays = [(import ./firefox-overlay.nix)];}).latest.firefox-bin"
+   #+END_SRC
+
+   #+RESULTS:
+
+** install imperatively
+*** symlink firefox-overlay.nix into ~/.config/nixpkgs/overlays/
+    #+BEGIN_SRC sh :dir ~/nixpkgs-mozilla 
+    ln -rsv firefox-overlay.nix ~/.config/nixpkgs/overlays/
+    #+END_SRC
+
+    #+RESULTS:
+    : '/home/cody/.config/nixpkgs/overlays/firefox-overlay.nix' -> '../../../nixpkgs-mozilla/firefox-overlay.nix'
+*** install
+   #+BEGIN_SRC sh :dir ~/nixpkgs-mozilla :results silent :file ~/Nextcloud/Documents/org/logs/install-firefox20171123231316.log
+    nix-env -iA nixos.latest.firefox-bin
+   #+END_SRC
+**** error
+     #+BEGIN_EXAMPLE
+     installing ‘firefox-bin-57.0’
+     these derivations will be built:
+     /nix/store/50h74mxb9540vng8289m69j9lny4nz8v-firefox-bin-57.0.drv
+     building path(s) ‘/nix/store/8968sqhqcdwyn1m46nxnpx2az2fxxpld-firefox-bin-57.0’
+     building path(s) ‘/nix/store/z3w4i2bsajzpmm5d62jinmfcwd46c8jv-user-environment’
+     Wide character in die at /nix/store/64jc9gd2rkbgdb4yjx3nrgc91bpjj5ky-buildenv.pl line 79.
+     collision between ‘/nix/store/rlac74xsksz8d5svpy84gs6i376fqvma-firefox-56.0.1/bin/firefox’ and ‘/nix/store/8968sqhqcdwyn1m46nxnpx2az2fxxpld-firefox-bin-57.0/bin/firefox’; use ‘nix-env --set-flag priority NUMBER PKGNAME’ to change the priority of one of the conflicting packages
+     builder for ‘/nix/store/3a39dvswhg6q0lix08mczpgmd56y0xn3-user-environment.drv’ failed with exit code 255
+     error: build of ‘/nix/store/3a39dvswhg6q0lix08mczpgmd56y0xn3-user-environment.drv’ failed
+     #+END_EXAMPLE
+      
+     Ugh... really? I guess this is happening because I've installed it before and is what the warning =Do not rely on these for reproducible builds=... perhaps.
+** fail and just install firefox 56
